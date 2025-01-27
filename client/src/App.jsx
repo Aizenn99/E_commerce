@@ -16,10 +16,10 @@ import ShoppingCheckout from "./pages/shopping-view/checkout";
 import CheckAuth from "./components/common/check-auth";
 
 function App() {
-  const isAuthenticated = true;
+  const isAuthenticated = false;
   const user = {
     name: 'het',
-    role : 'admin',
+    role : 'user',
   };
 
   return (
