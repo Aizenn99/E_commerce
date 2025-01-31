@@ -37,14 +37,18 @@ const loginUser = async (req, res) => {
     if (!checkUser)
       return res.json({
         success: false,
-        message: "User Doesn't Exist, Register First  ",
+        message: "User Doesn't Exist, Register First",
       });
+
     const checkPassword = await bcrypt.compare(password, checkUser.password);
     if (!checkPassword)
       return res.json({
         success: false,
-        message: "Password Incorrect! Please Try Again ",
+        message: "Password Incorrect! Please Try Again",
       });
+
+
+
 
     const token = jwt.sign(
       {
@@ -56,9 +60,13 @@ const loginUser = async (req, res) => {
       { expiresIn: "60m" }
     );
 
+
+
+
+
     res.cookie("token", token, { httpOnly: true, secure: false }).json({
       success: true,
-      message: "LoginIn sucessfull ",
+      message: "Logged In sucessfull ",
       user: {
         email: checkUser.email,
         role: checkUser.role,
@@ -74,4 +82,37 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+
+
+
+const logout = (req, res) => {
+  res.clearcookie("token").json({
+    success: true,
+    message: "Logged Out SuccessFully",
+  });
+};
+
+
+
+const authmiddleware = async(req,res) => {
+  const token = req.cookie.token;
+    if(!token) return res.status(401).json({
+      success : false,
+      message : "Unauthorized User"
+    })
+
+    try {
+      const decoded =  jwt.verify(token,"CLIENT_SECRET_KEY");
+      req.user=decoded;
+      next()
+    }catch(error){
+      res.status(401).json({
+        success : false,
+        message : "Unauthorized User"
+      })
+    }
+}
+
+
+
+module.exports = { registerUser, loginUser, logout , authmiddleware };

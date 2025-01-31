@@ -15,17 +15,19 @@ const initialState = {
 function AuthLogin() {
   const [formData, setFormData] = useState(initialState);
   const dispatch = useDispatch();
-  const toast = useToast();
+  const { toast } = useToast();
+
   function onSubmit(event) {
     event.preventDefault();
+
     dispatch(loginUser(formData)).then((data) => {
-      if (data?.payload.success) {
+      if (data?.payload?.success) {
         toast({
           title: data?.payload.message,
         });
       } else {
         toast({
-          title: data?.payload.message,
+          title: data?.payload?.message || "",
           variant: "destructive",
         });
       }

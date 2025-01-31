@@ -18,6 +18,8 @@ function AuthRegister() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { toast } = useToast();
+  console.log(toast); // Should log a function
+
 
   function onSubmit(event) {
     event.preventDefault();
