@@ -2,117 +2,129 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
 
+//register
 const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { userName, email, password } = req.body;
 
   try {
     const checkUser = await User.findOne({ email });
     if (checkUser)
-      return res.json({ success: false, message: "User Already Exists" });
+      return res.json({
+        success: false,
+        message: "User Already exists with the same email! Please try again",
+      });
+
     const hashPassword = await bcrypt.hash(password, 12);
-    const NewUser = new User({
-      username,
+    const newUser = new User({
+      userName,
       email,
       password: hashPassword,
     });
-    await NewUser.save();
+
+    await newUser.save();
     res.status(200).json({
       success: true,
-      message: "Registration Succesfull",
+      message: "Registration successful",
     });
   } catch (e) {
     console.log(e);
     res.status(500).json({
       success: false,
-      message: "some error",
+      message: "Some error occured",
     });
   }
 };
 
+//login
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const checkUser = await User.findOne({ email });
-
     if (!checkUser)
       return res.json({
         success: false,
-        message: "User Doesn't Exist, Register First",
+        message: "User doesn't exists! Please register first",
       });
 
-    const checkPassword = await bcrypt.compare(password, checkUser.password);
-    if (!checkPassword)
+    const checkPasswordMatch = await bcrypt.compare(
+      password,
+      checkUser.password
+    );
+    if (!checkPasswordMatch)
       return res.json({
         success: false,
-        message: "Password Incorrect! Please Try Again",
+        message: "Incorrect password! Please try again",
       });
 
 
-
-
+    
     const token = jwt.sign(
       {
         id: checkUser._id,
         role: checkUser.role,
-        email: checkUser,
+        email: checkUser.email,
+        userName: checkUser.userName,
       },
       "CLIENT_SECRET_KEY",
       { expiresIn: "60m" }
     );
 
-
-
-
-
-    res.cookie("token", token, { httpOnly: true, secure: false }).json({
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "strict" : "none",
+    }).json({
       success: true,
-      message: "Logged In sucessfull ",
+      message: "Logged in successfully",
       user: {
         email: checkUser.email,
         role: checkUser.role,
         id: checkUser._id,
+        userName: checkUser.userName,
       },
     });
   } catch (e) {
-    console.log(e);
+    console.error("Error:", e);
     res.status(500).json({
       success: false,
-      message: "some error",
+      message: "Internal server error",
     });
   }
 };
 
+//logout
 
-
-
-const logout = (req, res) => {
-  res.clearcookie("token").json({
+const logoutUser = (req, res) => {
+  res.clearCookie("token",{
+    httpOnly: true,
+    
+    samesite:"none",
+  }).json({
     success: true,
-    message: "Logged Out SuccessFully",
+    message: "Logged out successfully!",
   });
 };
 
+//auth middleware
+const authMiddleware = async (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token)
+    return res.status(401).json({
+      success: false,
+      message: "Unauthorised user!",
+    });
 
+  try {
+    const decoded = jwt.verify(token, "CLIENT_SECRET_KEY");
+    req.user = decoded;
+    next();
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: "Unauthorised user!",
+    });
+  }
+};
 
-const authmiddleware = async(req,res) => {
-  const token = req.cookie.token;
-    if(!token) return res.status(401).json({
-      success : false,
-      message : "Unauthorized User"
-    })
-
-    try {
-      const decoded =  jwt.verify(token,"CLIENT_SECRET_KEY");
-      req.user=decoded;
-      next()
-    }catch(error){
-      res.status(401).json({
-        success : false,
-        message : "Unauthorized User"
-      })
-    }
-}
-
-
-
-module.exports = { registerUser, loginUser, logout , authmiddleware };
+module.exports = { registerUser, loginUser, logoutUser, authMiddleware };

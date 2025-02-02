@@ -14,10 +14,30 @@ import ShoppingAccount from "./pages/shopping-view/account";
 import ShoppingListing from "./pages/shopping-view/listing";
 import ShoppingCheckout from "./pages/shopping-view/checkout";
 import CheckAuth from "./components/common/check-auth";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect } from "react";
+import { checkAuth } from "./store/auth-slice";
 
 function App() {
- const {user,isAuthenticated} = useSelector(state => state.auth)
+
+  // const isAuthenticated = true;
+  // const user = null;
+  // const isLoading = false;
+  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  if(isLoading){
+    return (
+      <div>
+        Loading...
+      </div>
+    )
+  }
+  
   return (
     <div className="flex flex-col overflow-hidden bg-white">
       <Routes>
@@ -28,7 +48,7 @@ function App() {
               <AuthLayout />
             </CheckAuth>
           }
-        > 
+        >
           <Route path="login" element={<AuthLogin />} />
           <Route path="register" element={<AuthRegister />} />
         </Route>
