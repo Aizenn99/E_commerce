@@ -10,7 +10,7 @@ const AdminHeader = ({setopen}) => {
         <span className="sr-only">Toggle menu</span>
       </Button>
       <div className="flex  flex-1 justify-end">
-        <Button className="inline-flex gap-2 tracking-tigher items-center rounded-lg px-4 py-2 text-sm hover:bg-muted hover:text-black font-medium shadow-sm">
+        <Button className="inline-flex gap-2 tracking-tigher items-center rounded-lg px-4 py-2 text-sm hover:bg-muted hover:text-black font-medium shadow-lg">
           Logout
           <LogOut />
         </Button>
