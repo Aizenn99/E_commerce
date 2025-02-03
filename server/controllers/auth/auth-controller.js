@@ -57,8 +57,6 @@ const loginUser = async (req, res) => {
         message: "Incorrect password! Please try again",
       });
 
-
-    
     const token = jwt.sign(
       {
         id: checkUser._id,
@@ -70,11 +68,7 @@ const loginUser = async (req, res) => {
       { expiresIn: "60m" }
     );
 
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "none",
-    }).json({
+    res.cookie("token", token, { httpOnly: true, secure: false }).json({
       success: true,
       message: "Logged in successfully",
       user: {
@@ -85,10 +79,10 @@ const loginUser = async (req, res) => {
       },
     });
   } catch (e) {
-    console.error("Error:", e);
+    console.log(e);
     res.status(500).json({
       success: false,
-      message: "Internal server error",
+      message: "Some error occured",
     });
   }
 };
@@ -96,11 +90,7 @@ const loginUser = async (req, res) => {
 //logout
 
 const logoutUser = (req, res) => {
-  res.clearCookie("token",{
-    httpOnly: true,
-    
-    samesite:"none",
-  }).json({
+  res.clearCookie("token").json({
     success: true,
     message: "Logged out successfully!",
   });

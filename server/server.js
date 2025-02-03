@@ -31,6 +31,6 @@ app.use(
 
 app.use(cookieParser({credentials: true, origin: 'http://localhost:5173'}));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+
 app.use("/api/auth", authRouter);
 app.listen(PORT, () => console.log(` server is now running on port ${PORT} `));

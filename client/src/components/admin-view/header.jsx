@@ -2,7 +2,9 @@ import React from 'react'
 
 const AdminHeader = () => {
   return (
-    <div>AdminHeader</div>
+   <header className='flex items-center justify-between bg-background px-4 py-3  ' >
+
+   </header>
   )
 }
 
