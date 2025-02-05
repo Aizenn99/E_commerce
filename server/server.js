@@ -2,10 +2,10 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const authRouter = require("./routes/auth/auth-routes");
 
-//create database connection -> u can also
-// create a seperate file for this and then import/use that file  for this and import/use that file here
+const authRouter = require("./routes/auth/auth-routes");
+const adminProductsRouter = require("./routes/admin/products-routes"); // ✅ Correct import
+
 mongoose
   .connect("mongodb+srv://Hetkalriya:Het123456@cluster0.9hwkb.mongodb.net/")
   .then(() => console.log("MongoDB connected "))
@@ -18,19 +18,14 @@ app.use(
   cors({
     origin: "http://localhost:5173",
     methods: ["GET", "POST", "DELETE", "PUT"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cache-Control",
-      "Expires",
-      "Pragma",
-    ],
     credentials: true,
   })
 );
 
-app.use(cookieParser({credentials: true, origin: 'http://localhost:5173'}));
+app.use(cookieParser());
 app.use(express.json());
 
+app.use("/api/admin/products", adminProductsRouter); // ✅ Corrected route path
 app.use("/api/auth", authRouter);
-app.listen(PORT, () => console.log(` server is now running on port ${PORT} `));
+
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
