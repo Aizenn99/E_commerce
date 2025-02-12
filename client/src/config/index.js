@@ -105,3 +105,35 @@ export const addProductFormElements = [
   },
 ];
 
+export const shoppingViewHeaderMenuItems =  [
+  {
+    id : 'Home',
+    label : 'Home',
+    path : '/shop/home'
+  },
+  {
+    id : 'men',
+    label : 'Men',
+    path : '/shop/listing'
+  },
+  {
+    id : 'Women',
+    label : 'Women',
+    path : '/shop/listing'
+  },
+  {
+    id : 'Kids',
+    label : 'Kids',
+    path : '/shop/listing'
+  },
+  {
+    id : 'Footware',
+    label : 'Footware',
+    path : '/shop/listing'
+  },
+  {
+    id : 'Accessories',
+    label : 'Accessories',
+    path : '/shop/listing'
+  },
+]

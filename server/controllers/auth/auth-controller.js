@@ -4,7 +4,7 @@ const User = require("../../models/User");
 
 //register
 const registerUser = async (req, res) => {
-  const { userName, email, password } = req.body;
+  const { username, email, password } = req.body;
 
   try {
     const checkUser = await User.findOne({ email });
@@ -16,7 +16,7 @@ const registerUser = async (req, res) => {
 
     const hashPassword = await bcrypt.hash(password, 12);
     const newUser = new User({
-      userName,
+      username,
       email,
       password: hashPassword,
     });
@@ -62,10 +62,10 @@ const loginUser = async (req, res) => {
         id: checkUser._id,
         role: checkUser.role,
         email: checkUser.email,
-        userName: checkUser.userName,
+        userName: checkUser.username,
       },
       "CLIENT_SECRET_KEY",
-      { expiresIn: "1d" }
+      { expiresIn: "60m" }
     );
 
     res.cookie("token", token, { httpOnly: true, secure: false }).json({
@@ -75,7 +75,7 @@ const loginUser = async (req, res) => {
         email: checkUser.email,
         role: checkUser.role,
         id: checkUser._id,
-        userName: checkUser.userName,
+        userName: checkUser.username,
       },
     });
   } catch (e) {

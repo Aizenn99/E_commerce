@@ -66,7 +66,6 @@ export const checkAuth = createAsyncThunk(
         headers: {
           "Cache-Control":
             "no-store, no-cache, must-revalidate, proxy-revalidate",
-            Expires: 0,
         },
       }
     );
@@ -134,4 +133,3 @@ const authSlice = createSlice({
 
 export const { setUser } = authSlice.actions;
 export default authSlice.reducer;
-  

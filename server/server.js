@@ -2,17 +2,23 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-
+const adminProductsRouter = require("./routes/admin/products-routes");
 const authRouter = require("./routes/auth/auth-routes");
-const adminProductsRouter = require("./routes/admin/products-routes"); // ✅ Correct import
 
 mongoose
   .connect("mongodb+srv://Hetkalriya:Het123456@cluster0.9hwkb.mongodb.net/")
-  .then(() => console.log("MongoDB connected "))
-  .catch((error) => console.log(error));
+  .then(() => console.log("MongoDB connected"))
+  .catch((error) => console.log("MongoDB Connection Error:", error));
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
+
+// Increase timeout limit
+// app.use((req, res, next) => {
+//   req.setTimeout(120000); // 120 seconds
+//   res.setTimeout(120000); // 120 seconds
+//   next();
+// });
 
 app.use(
   cors({
@@ -21,11 +27,11 @@ app.use(
     credentials: true,
   })
 );
-
-app.use(cookieParser());
 app.use(express.json());
+app.use(cookieParser());
+// app.use(express.json({ limit: "50mb" })); // Allow large payloads
 
-app.use("/api/admin/products", adminProductsRouter); // ✅ Corrected route path
+app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/auth", authRouter);
 
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

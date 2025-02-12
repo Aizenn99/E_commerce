@@ -12,7 +12,7 @@ const ShoppingHome = () => {
 
   return (
     <div >
-    <Button onClick={handleLogout} >Logout</Button>
+    home
     </div>
   )
 }
