@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const shoppingproductsRouter = require("./routes/shop/products-routes");
 const adminProductsRouter = require("./routes/admin/products-routes");
 const authRouter = require("./routes/auth/auth-routes");
 
@@ -13,13 +14,6 @@ mongoose
 const app = express();
 const PORT = 5000;
 
-// Increase timeout limit
-// app.use((req, res, next) => {
-//   req.setTimeout(120000); // 120 seconds
-//   res.setTimeout(120000); // 120 seconds
-//   next();
-// });
-
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -30,7 +24,7 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 // app.use(express.json({ limit: "50mb" })); // Allow large payloads
-
+app.use("/api/shop/products", shoppingproductsRouter);
 app.use("/api/admin/products", adminProductsRouter);
 app.use("/api/auth", authRouter);
 
