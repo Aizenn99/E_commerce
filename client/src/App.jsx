@@ -57,6 +57,7 @@ function App() {
               <AdminLayout />
             </CheckAuth>
           }
+          
         >
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="features" element={<AdminFeatures />} />

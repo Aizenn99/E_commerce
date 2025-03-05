@@ -10,8 +10,31 @@ import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { StarIcon } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { addToCart, fetchCartItems } from "@/store/shop-slice/cart-slice";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
+  const { toast } = useToast();
+  const dispatch = useDispatch();
+  const {user} = useSelector((state) => state.auth);
+  function handleAddToCart(getCurrentProductId) {
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        quantity: 1,
+        productId: getCurrentProductId,
+      })
+    ).then((data) => {
+      if (data?.payload?.success) {
+        dispatch(fetchCartItems(user?.id));
+        toast({
+          title: "Product Added To Cart",
+        });
+      }
+    });
+  }
+
   return (
     <Dialog open={open} onOpenChange={(value) => setopen(value)}>
       <DialogContent
@@ -19,26 +42,25 @@ const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
         aria-describedby="product-description"
       >
         {/* Left: Product Image */}
-        <div className="relative overflow-hidden rounded-lg w-full lg:w-1/2">
+        <div className="relative w-full overflow-hidden rounded-lg lg:w-1/2">
           <img
             src={productDetails?.image}
             alt={productDetails?.title}
             width={600}
             height={600}
-            className="aspect-square w-full object-cover"
+            className="object-cover w-full aspect-square"
           />
           {productDetails?.salePrice > 0 ? (
-            <Badge className="absolute top-2 left-2 bg-red-500 hover:bg-red-600">
+            <Badge className="absolute bg-red-500 top-2 left-2 hover:bg-red-600">
               Sale
             </Badge>
           ) : null}
         </div>
 
         {/* Right: Product Details */}
-        <div className="flex flex-col gap-6 w-full lg:w-1/2">
+        <div className="flex flex-col w-full gap-6 lg:w-1/2">
           <DialogTitle
-            className="text-3xl font-medium
-          "
+            className="text-3xl font-medium "
           >
             {productDetails?.title || "Product Details"}
           </DialogTitle>
@@ -54,17 +76,19 @@ const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
               ${productDetails?.price}
             </p>
             {productDetails?.salePrice > 0 ? (
-              <p className="text-2xl  text-primary">
+              <p className="text-2xl text-primary">
                 ${productDetails?.salePrice}
               </p>
             ) : null}
           </div>
           <div>
-            <Button className="w-full">Add To Cart</Button>
+            <Button onClick={() => handleAddToCart(productDetails?._id)} className="w-full">
+              Add To Cart
+            </Button>
           </div>
           <Separator />
           <div className="max-h-[300px] overflow-auto">
-            <h2 className="text-xl font-medium  mb-4">Reviews</h2>
+            <h2 className="mb-4 text-xl font-medium">Reviews</h2>
             <div className="grid gap-6 ">
               <div className="flex gap-4 ">
                 <Avatar className="w-10 h-10 border">
@@ -81,7 +105,7 @@ const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
                     <StarIcon className="w-5 h-5 fill-primary" />
                     <StarIcon className="w-5 h-5 " />
                   </div>
-                  <p className="text-muted-foreground mt-2 ">
+                  <p className="mt-2 text-muted-foreground ">
                     This is an awesome product
                   </p>
                 </div>

@@ -1,5 +1,5 @@
 import { House, LogOut, Menu, ShoppingCart, User } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
@@ -15,25 +15,46 @@ import {
 } from "../ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { logoutUser } from "@/store/auth-slice";
+import { useState } from "react";
+import UserCartWrapper from "./cart-wrapper";
+import { fetchCartItems } from "@/store/shop-slice/cart-slice";
 
 function HeaderRightContent() {
+  const [openCart, setopenCart] = useState(false);
   const { user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.shopCart);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   function handleLogout() {
     dispatch(logoutUser());
   }
 
+  useEffect(() => {
+    if (user?.id) {
+      dispatch(fetchCartItems(user.id));
+    }
+  }, [dispatch, user?.id]);
+
   return (
-    <div className="flex lg:items-center lg:flex-row flex-col gap-4 ">
-      <Button variant="outline" size="icon">
-        <ShoppingCart className="w-6 h-6 " />
-        <span className="sr-only">User Cart</span>
-      </Button>
+    <div className="flex flex-col gap-4 lg:items-center lg:flex-row ">
+      <Sheet open={openCart} onOpenChange={() => setopenCart(false)}>
+        <Button onClick={() => setopenCart(true)} variant="outline" size="icon">
+          <ShoppingCart className="w-6 h-6 " />
+          <span className="sr-only">User Cart</span>
+        </Button>
+        <UserCartWrapper
+          cartItems={
+            cartItems && cartItems.items && cartItems.items.length > 0
+              ? cartItems.items
+              : []
+          }
+        />
+      </Sheet>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Avatar className="bg-black  cursor-pointer ">
-            <AvatarFallback className="bg-black text-white font-medium ">
+          <Avatar className="bg-black cursor-pointer ">
+            <AvatarFallback className="font-medium text-white bg-black ">
               {user?.userName ? user.userName[0].toUpperCase() : ""}
             </AvatarFallback>
           </Avatar>
@@ -46,12 +67,12 @@ function HeaderRightContent() {
               navigate("/shop/account");
             }}
           >
-            <User className="mr-2 h-4 w-4" />
+            <User className="w-4 h-4 mr-2" />
             Account
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
+            <LogOut className="w-4 h-4 mr-2" />
             Logout
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -61,7 +82,7 @@ function HeaderRightContent() {
 }
 function MenuItems() {
   return (
-    <nav className="flex flex-col lg:flex-row items-center  gap-6 mb-3 lg:mb-0">
+    <nav className="flex flex-col items-center gap-6 mb-3 lg:flex-row lg:mb-0">
       {shoppingViewHeaderMenuItems.map((menuItem) => (
         <Link
           className="text-sm font-medium"
@@ -80,7 +101,7 @@ const ShoppingHeader = () => {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
-      <div className="flex h-16 items-center justify-between px-4 md:px-6 ">
+      <div className="flex items-center justify-between h-16 px-4 md:px-6 ">
         <Link className="flex items-center gap-2 " to={"/shop/home"}>
           <House className="w-6 h-6 " />
           <span className="text-xl">E-Commerce</span>
@@ -88,14 +109,13 @@ const ShoppingHeader = () => {
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="lg:hidden">
-              <Menu className="h-6 w-6" />
+              <Menu className="w-6 h-6" />
               <span className="sr-only">Toggle</span>
             </Button>
-            
           </SheetTrigger>
           <SheetContent side="left" className="w-full max-w-xs ">
             <MenuItems />
-            <HeaderRightContent  />
+            <HeaderRightContent />
           </SheetContent>
         </Sheet>
         <div className="hidden lg:block">

@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { sortOptions } from "@/config";
+import { useToast } from "@/hooks/use-toast";
+import { addToCart, fetchCartItems } from "@/store/shop-slice/cart-slice";
 import {
   fetchAllFilteredProducts,
   fetchProductDetails,
@@ -28,6 +30,8 @@ const ShoppingListing = () => {
   const [sort, setsort] = useState(null);
   const [SearchParams, setsearchparams] = useSearchParams();
   const [OpenDetailsDialog, setOpenDetailsDialog] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+  const {toast} = useToast()
 
   //CREATE PARAM SEARCH
 
@@ -81,6 +85,25 @@ const ShoppingListing = () => {
     setOpenDetailsDialog(true);
   }
 
+  //handle add to cart
+
+  function handleAddToCart(getCurrentProductId) {
+    dispatch(
+      addToCart({
+        userId: user?.id,
+        quantity: 1,
+        productId: getCurrentProductId,
+      })
+    ).then((data) => {
+      if(data?.payload?.success){
+        dispatch(fetchCartItems(user?.id))
+        toast({
+          title : "Product Added To Cart"
+        })
+      }
+    });
+  }
+
   //use effect
 
   useEffect(() => {
@@ -110,13 +133,11 @@ const ShoppingListing = () => {
 
   //mainnnn
 
-  
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6 p-4 md:p-6 ">
       <ProductFilter Filters={Filters} handlefilter={handlefilter} />
-      <div className="bg-background w-full rounded-lg shadow-sm">
-        <div className="p-4 border-b flex  items-center justify-between">
+      <div className="w-full rounded-lg shadow-sm bg-background">
+        <div className="flex items-center justify-between p-4 border-b">
           <h2 className="text-lg font-medium">All Products</h2>
           <div className="flex items-center gap-3 ">
             <span className="text-muted-foreground ">
@@ -148,13 +169,14 @@ const ShoppingListing = () => {
             </DropdownMenu>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+        <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3">
           {productList && productList.length > 0
             ? productList.map((productItem) => (
                 <ShoppingProductTile
                   handleGetProductDetails={handleGetProductDetails}
                   key={productItem.id}
                   product={productItem}
+                  handleAddToCart={handleAddToCart}
                 />
               ))
             : null}
