@@ -1,6 +1,5 @@
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
-const { Readable } = require("stream");
 
 // Configure Cloudinary
 cloudinary.config({
@@ -10,37 +9,17 @@ cloudinary.config({
 });
 
 // Set up Multer (store files in memory)
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
+const storage = new multer.memoryStorage();
 
 // Stream Upload Function
 async function imageUploadUtil(file) {
-  try {
-    if (!file || !file.buffer) {
-      throw new Error("Invalid file: File buffer is missing");
-    }
+  const result = await cloudinary.uploader.upload(file, {
+    resource_type: "auto",
+  });
 
-    return new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { resource_type: "auto" },
-        (error, result) => {
-          if (error) {
-            console.error("❌ Cloudinary Upload Error:", error);
-            reject(error);
-          } else {
-            console.log("✅ Upload Success:", result.secure_url);
-            resolve(result);
-          }
-        }
-      );
-      
-      // Convert file buffer to a readable stream and pipe to Cloudinary
-      Readable.from(file.buffer).pipe(uploadStream);
-    });
-  } catch (error) {
-    console.error("❌ Cloudinary Upload Error:", error);
-    throw error;
-  }
+  return result;
 }
+
+const upload = multer({ storage });
 
 module.exports = { upload, imageUploadUtil };

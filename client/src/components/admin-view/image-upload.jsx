@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import { Button } from "../ui/button";
 import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 function ProductImageUpload({
   imageFile,
@@ -16,14 +17,14 @@ function ProductImageUpload({
   isEditMode,
   isCustomStyling = false,
 }) {
+
+  
   const inputRef = useRef(null);
 
   console.log(isEditMode, "isEditMode");
 
   function handleImageFileChange(event) {
-    console.log(event.target.files, "event.target.files");
     const selectedFile = event.target.files?.[0];
-    console.log(selectedFile);
 
     if (selectedFile) setImageFile(selectedFile);
   }
@@ -45,55 +46,59 @@ function ProductImageUpload({
     }
   }
 
-  async function uploadImageToCloudinary(imageFile) {
-    console.log("uploadImageToCloudinary called with:", imageFile);
-    if (!imageFile) {
-      console.error("No image file provided");
-      return;
-    }
-  
+  // async function uploadImageToCloudinary() {
+  //   const data = new FormData();
+  //   data.append("my_file",imageFile)
+  //   const response = await axios.post("http://localhost:5000/api/admin/products/upload-image",data)
+  //   console.log(response,"response");
+
+  //   if(response?.data?.success) setUploadedImageUrl(response.data.result.url)
+
+  // }
+
+  async function uploadImageToCloudinary() {
+    if (!imageFile) return;
+
     try {
+      // Set loading state to true before starting the upload
       setImageLoadingState(true);
-  
+
       const data = new FormData();
       data.append("my_file", imageFile);
-  
-      console.log("FormData content:", data.get("my_file"));
-  
+
       const response = await axios.post(
         "http://localhost:5000/api/admin/products/upload-image",
-        data,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+        data
       );
-  
-      console.log("API response:", response);
-  
+
+      console.log(response, "response");
+
       if (response?.data?.success) {
         setUploadedImageUrl(response.data.result.url);
-      } else {
-        console.error("Upload failed:", response.data);
       }
     } catch (error) {
       console.error("Error uploading image:", error);
     } finally {
+      // Set loading state to false after upload completes (whether success or failure)
       setImageLoadingState(false);
     }
   }
+
   useEffect(() => {
     console.log("useEffect triggered:", imageFile);
-    if (imageFile instanceof File) {
+    if (imageFile !== null) {
       console.log("Calling API with:", imageFile);
-      uploadImageToCloudinary(imageFile);
+      uploadImageToCloudinary();
     }
   }, [imageFile]);
+
+  //hgfsdusdfs
 
   return (
     <div
       className={`w-full  mt-4 ${isCustomStyling ? "" : "max-w-md mx-auto"}`}
     >
-      <Label className="text-lg font-semibold mb-2 block">Upload Image</Label>
+      <Label className="block mb-2 text-lg font-semibold">Upload Image</Label>
       <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
@@ -116,7 +121,7 @@ function ProductImageUpload({
               isEditMode ? "cursor-not-allowed" : ""
             } flex flex-col items-center justify-center h-32 cursor-pointer`}
           >
-            <UploadCloudIcon className="w-10 h-10 text-muted-foreground mb-2" />
+            <UploadCloudIcon className="w-10 h-10 mb-2 text-muted-foreground" />
             <span>Drag & drop or click to upload image</span>
           </Label>
         ) : imageLoadingState ? (
@@ -124,7 +129,7 @@ function ProductImageUpload({
         ) : (
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <FileIcon className="w-8 text-primary mr-2 h-8" />
+              <FileIcon className="w-8 h-8 mr-2 text-primary" />
             </div>
             <p className="text-sm font-medium">{imageFile.name}</p>
             <Button

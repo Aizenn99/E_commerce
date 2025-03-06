@@ -13,11 +13,16 @@ import { StarIcon } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, fetchCartItems } from "@/store/shop-slice/cart-slice";
 import { useToast } from "@/hooks/use-toast";
+import { setProductDetails } from "@/store/shop-slice/products-slice";
 
 const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
   const { toast } = useToast();
   const dispatch = useDispatch();
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
+  function handleDialogClose() {
+    setopen(false);
+    dispatch(setProductDetails());
+  }
   function handleAddToCart(getCurrentProductId) {
     dispatch(
       addToCart({
@@ -36,7 +41,7 @@ const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
   }
 
   return (
-    <Dialog open={open} onOpenChange={(value) => setopen(value)}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent
         className="flex flex-col lg:flex-row gap-8 sm:p-12 max-w-[80vw] lg:max-w-[60vw]"
         aria-describedby="product-description"
@@ -59,9 +64,7 @@ const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
 
         {/* Right: Product Details */}
         <div className="flex flex-col w-full gap-6 lg:w-1/2">
-          <DialogTitle
-            className="text-3xl font-medium "
-          >
+          <DialogTitle className="text-3xl font-medium ">
             {productDetails?.title || "Product Details"}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
@@ -82,7 +85,10 @@ const ProductDetailsDialog = ({ open, setopen, productDetails }) => {
             ) : null}
           </div>
           <div>
-            <Button onClick={() => handleAddToCart(productDetails?._id)} className="w-full">
+            <Button
+              onClick={() => handleAddToCart(productDetails?._id)}
+              className="w-full"
+            >
               Add To Cart
             </Button>
           </div>
