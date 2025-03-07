@@ -18,6 +18,7 @@ import { logoutUser } from "@/store/auth-slice";
 import { useState } from "react";
 import UserCartWrapper from "./cart-wrapper";
 import { fetchCartItems } from "@/store/shop-slice/cart-slice";
+import { Label } from "../ui/label";
 
 function HeaderRightContent() {
   const [openCart, setopenCart] = useState(false);
@@ -25,6 +26,7 @@ function HeaderRightContent() {
   const { cartItems } = useSelector((state) => state.shopCart);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   function handleLogout() {
     dispatch(logoutUser());
   }
@@ -81,16 +83,39 @@ function HeaderRightContent() {
   );
 }
 function MenuItems() {
+  const navigate = useNavigate();
+
+
+  function handleNavigate(getCurrentMenuItem) {
+    sessionStorage.removeItem("Filters");
+
+   
+    if (getCurrentMenuItem.id === "products") {
+      navigate("/shop/listing");
+      window.location.reload();
+    } else {
+      const currentFilter = {
+        category: [getCurrentMenuItem.id],
+      };
+
+      sessionStorage.setItem("Filters", JSON.stringify(currentFilter));
+
+      // Force a re-render or fetch new data
+      navigate(getCurrentMenuItem.path, { replace: true });
+      window.location.reload(); // Optional: Only use if products don't refresh automatically
+    }
+  }
+
   return (
     <nav className="flex flex-col items-center gap-6 mb-3 lg:flex-row lg:mb-0">
       {shoppingViewHeaderMenuItems.map((menuItem) => (
-        <Link
-          className="text-sm font-medium"
+        <Label
+          className="text-sm font-medium cursor-pointer"
+          onClick={() => handleNavigate(menuItem)}
           key={menuItem.id}
-          to={menuItem.path}
         >
           {menuItem.label}
-        </Link>
+        </Label>
       ))}
     </nav>
   );

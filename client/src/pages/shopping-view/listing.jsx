@@ -109,7 +109,7 @@ const ShoppingListing = () => {
   useEffect(() => {
     setsort("price-lowtohigh");
     setFilters(JSON.parse(sessionStorage.getItem("Filters")) || {});
-  }, []);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (Filters && Object.keys(Filters).length > 0) {

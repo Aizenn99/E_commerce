@@ -7,21 +7,43 @@ const initialState = {
   productDetails: null,
 };
 
+// export const fetchAllFilteredProducts = createAsyncThunk(
+//   "/products/fetchAllProducts",
+//   async ({ filterParams, sortParams }) => {
+//     const query = new URLSearchParams({
+//       ...filterParams,
+//       sortBy: sortParams,
+//     });
+
+//     const result = await axios.get(
+//       `http://localhost:5000/api/shop/products/get?${query} `
+//     );
+
+//     return result?.data;
+//   }
+// );
+
 export const fetchAllFilteredProducts = createAsyncThunk(
   "/products/fetchAllProducts",
   async ({ filterParams, sortParams }) => {
-    const query = new URLSearchParams({
+    let query = new URLSearchParams({
       ...filterParams,
       sortBy: sortParams,
     });
 
+    // Remove "category=products" if it exists (since it's incorrect)
+    if (query.get("category") === "products") {
+      query.delete("category");
+    }
+
     const result = await axios.get(
-      `http://localhost:5000/api/shop/products/get?${query} `
+      `http://localhost:5000/api/shop/products/get?${query}`
     );
 
     return result?.data;
   }
 );
+
 
 export const fetchProductDetails = createAsyncThunk(
   "/products/fetchProductDetails",
